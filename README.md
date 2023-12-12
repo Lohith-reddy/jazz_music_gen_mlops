@@ -5,7 +5,7 @@ simplified midi scraping script (removed the use of selenium which requires a lo
 Implemented async scrapping - the scraping was multifold faster
 Added new midi data - from a different website - tripled the data size
 
-Iteration-2 - MLOps implementation  <= currently here
+Iteration-2 - MLOps implementation  <= currently here  #implement in feature branch.
 
 Use Airflow for data pipeline
 TFX for training, error analysis, and serving

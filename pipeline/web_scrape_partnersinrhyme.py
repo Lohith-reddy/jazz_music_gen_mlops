@@ -3,13 +3,14 @@ from aiohttp import ClientSession
 from bs4 import BeautifulSoup
 import re
 
+midi_data_path = "../midi_data"
 url = "https://www.partnersinrhyme.com/midi/Jazz/index.shtml"
 
 async def download_midi(url, extracted_text):
     async with ClientSession() as session:
         async with session.get(url) as response:
             content = await response.read()
-            file_path = "midi_data/" + extracted_text + ".mid"
+            file_path = midi_data_path+"/" + extracted_text + ".mid"
             with open(file_path, "wb") as file:
                 file.write(content)
                 print("Downloaded", file_path)

@@ -3,6 +3,8 @@ import asyncio
 from bs4 import BeautifulSoup
 import aiohttp
 
+midi_data_path = "../midi_data"
+
 async def fetch_url(session, url):
     async with session.get(url) as response:
         return await response.text()
@@ -41,13 +43,13 @@ async def download_midi(url, session):
     filename = url.split("/")[-1]
 
     # Check if the file already exists in the directory
-    if os.path.exists(f"midi_data/{filename}"):
+    if os.path.exists(f"{midi_data_path}/{filename}"):
         print(f"Skipping {filename} (already exists)")
         return
 
     async with session.get(url) as response:
         # Save the MIDI file to the "data" folder
-        with open(f"midi_data/{filename}", "wb") as file:
+        with open(f"{midi_data_path}/{filename}", "wb") as file:
             # Iterate over the response content asynchronously
             async for chunk in response.content.iter_any():
                 file.write(chunk)
@@ -63,8 +65,8 @@ async def main():
         all_hrefs = [href for hrefs in all_hrefs_per_page for href in hrefs]
 
     # Create the "data" folder if it doesn't exist
-    if not os.path.exists("midi_data"):
-        os.makedirs("midi_data")
+    if not os.path.exists(midi_data_path):
+        os.makedirs(midi_data_path)
 
     # Create a queue to store hrefs
     href_queue = asyncio.Queue()
