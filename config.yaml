@@ -1,5 +1,0 @@
-sequence_length: 100
-model_loss_function: categorical_crossentropy
-model_optimizer: rmsprop
-epochs: 200
-batch_size: 128

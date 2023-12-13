@@ -11,8 +11,16 @@ Use Airflow for data pipeline
 TFX for training, error analysis, and serving
 using dockers, ec2/gcp, kubeflow.
 
-Iteration-3 - Improve the Model
+Iteration-3 - Improve the Model and prepocessing
 
+The current preprocessing is dismal.
+Improve data:
+    1. notes are currently modeled as integers. A semi-supervised encoding is better.
+        a. use music21 to create a custom embedding.
+        a. traditional - n-gram, SVD
+        b. raw midi data into pre-trained models to fetch features?? i.e. tranfer learning
+        c. 
+    2. feature engineering
 Use various model architectures and hyperopt
 
     1. Transformers

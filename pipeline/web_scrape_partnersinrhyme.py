@@ -3,8 +3,6 @@ from aiohttp import ClientSession
 from bs4 import BeautifulSoup
 import re
 
-midi_data_path = "../midi_data"
-url = "https://www.partnersinrhyme.com/midi/Jazz/index.shtml"
 
 async def download_midi(url, extracted_text):
     async with ClientSession() as session:
@@ -34,5 +32,12 @@ async def main(url):  # Pass the url as an argument
 
         downloaded_files = await asyncio.gather(*tasks)
 
-await main(url)  # Pass the url as an argument
+if __name__ == "__main__":
+    midi_data_path = "midi_data"
+    url = "https://www.partnersinrhyme.com/midi/Jazz/index.shtml"
+    loop = asyncio.get_event_loop()
+
+    # Run the main function using the event loop
+    loop.run_until_complete(main(url))
+    #await main(url)  # Pass the url as an argument
 

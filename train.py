@@ -12,6 +12,7 @@ from tensorflow.keras.layers import BatchNormalization as BatchNorm
 #from tensorflow.keras.utils import np_utils
 from tensorflow.python.keras import utils
 from tensorflow.keras.callbacks import ModelCheckpoint
+import sys
 
 
 def read_pickle_file(file_path):
@@ -42,7 +43,9 @@ def create_network(network_input, n_vocab,loss= "categorical_crossentropy",optim
 
     return model
 
-def train(model, network_input, network_output, epochs=200, batch_size=128):
+
+
+def train(model, network_input, network_output, epochs=200, batch_size=128, validation_split=0.2):
     """ train the neural network """
     filepath = "artifacts/weights-improvement-{epoch:02d}-{loss:.4f}-bigger.h5"
     checkpoint = ModelCheckpoint(
@@ -54,13 +57,16 @@ def train(model, network_input, network_output, epochs=200, batch_size=128):
     )
     callbacks_list = [checkpoint]
 
-    model.fit(network_input, network_output, epochs=epochs, batch_size=batch_size, callbacks=callbacks_list)
+    # Split the data into training and validation sets
+    network_input_train, network_input_val, network_output_train, network_output_val = train_test_split(network_input, network_output, test_size=validation_split)
 
+    # Include validation_data in the fit method
+    model.fit(network_input_train, network_output_train, epochs=epochs, batch_size=batch_size, callbacks=callbacks_list, validation_data=(network_input_val, network_output_val))
 if __name__ == '__main__':
 
     if not os.path.exists('artifacts'):
         os.makedirs('artifacts')
-        
+    args = sys.argv[1:]    
 
     with open('config.yaml', 'r') as config_file:
             config = yaml.safe_load(config_file)

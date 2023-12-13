@@ -2,6 +2,7 @@
 import pickle
 import numpy
 import yaml
+import os
 from music21 import instrument, note, stream, chord
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
@@ -11,28 +12,6 @@ from tensorflow.keras.layers import BatchNormalization as BatchNorm
 from tensorflow.keras.layers import Activation
 from midi2audio import FluidSynth
 
-def generate():
-    """ Generate a piano midi file """
-    #load the notes used to train the model
-    with open('notes', 'rb') as filepath:
-        notes = pickle.load(filepath)
-    
-    with open('inference_config.yaml', 'r') as config_file:
-            config = yaml.safe_load(config_file)
-
-    sequence_length = config['sequence_length']
-    model_path = config['model_path']
-    n_notes = config['n_notes']
-
-    # Get all pitch names
-    pitchnames = sorted(set(item for item in notes))
-    # Get all pitch names
-    n_vocab = len(set(notes))
-
-    network_input, normalized_input = prepare_sequences(notes, pitchnames, n_vocab,sequence_length)
-    model = create_network(normalized_input, n_vocab, model_path)
-    prediction_output = generate_notes(model, network_input, pitchnames, n_vocab)
-    create_midi(prediction_output)
 
 def prepare_sequences(notes, pitchnames, n_vocab,sequence_length):
     """ Prepare the sequences used by the Neural Network """
@@ -146,13 +125,34 @@ def create_midi(prediction_output):
     midi_stream.write('midi', fp='generated_music/inference.mid')
 
 
-def convert_midi_to_mp3(midi_file_path= 'generated_music/inference.mid',
-                         output_file_path = 'generated_music/inference.mp3'):
-    """ Convert MIDI file to MP3 format. """
+def convert_midi_to_mp3():
+    for file in os.listdir('generated_music'):
+        if file.endswith('.mid'):
+            midi_file_path = 'generated_music/' + file
+            output_file_path = 'generated_music/' + file[:-4] + '.mp3'
     FluidSynth().midi_to_audio(midi_file_path, output_file_path)
 
     
 
 if __name__ == '__main__':
-    generate()
+
+    with open('notes', 'rb') as filepath:
+        notes = pickle.load(filepath)
+    
+    with open('inference_config.yaml', 'r') as config_file:
+        config = yaml.safe_load(config_file)
+
+    sequence_length = config['sequence_length']
+    model_path = config['model_path']
+    n_notes = config['n_notes']
+
+    # Get all pitch names
+    pitchnames = sorted(set(item for item in notes))
+    # Get all pitch names
+    n_vocab = len(set(notes))
+
+    network_input, normalized_input = prepare_sequences(notes, pitchnames, n_vocab,sequence_length)
+    model = create_network(normalized_input, n_vocab, model_path)
+    prediction_output = generate_notes(model, network_input, pitchnames, n_vocab)
+    create_midi(prediction_output)
     convert_midi_to_mp3()

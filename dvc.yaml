@@ -1,0 +1,27 @@
+stages:
+  partner_in_rhyme:
+    cmd: python pipeline/web_scrape_partnersinrhyme.py
+  midis101_part1:
+    cmd: python pipeline/midis101_part1.py
+  midis101_part2:
+    cmd: python pipeline/midis101_part2.py
+    deps:
+      - pipeline/midis101_part1.py
+
+  # data_prep_train:
+  #   cmd: python pipeline/data_prep.py --config=params.yml
+  #   deps:
+  #     - pipeline/web_scrape_partnersinrhyme.py
+  #     - pipeline/web_scrape_midis101.py
+  #     - midi_data
+  #   params:
+  #     - sequence_length
+  #     - midi_data_path
+  #     - split_start
+  #     - train_split
+  #   outs:
+  #     - processed/network_input.npy
+  #     - processed/network_output.npy
+  #     - processed/n_vocab
+  #     - processed/notes
+  # train:

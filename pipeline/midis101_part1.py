@@ -1,9 +1,7 @@
-import os
 import asyncio
+import pickle
 from bs4 import BeautifulSoup
 import aiohttp
-
-midi_data_path = "../midi_data"
 
 async def fetch_url(session, url):
     async with session.get(url) as response:
@@ -37,24 +35,11 @@ async def fetch_download_hrefs(url, queue):
             print(f"Extracted {href}")
             await queue.put(href)
 
-async def download_midi(url, session):
-    url = "https://www.midis101.com" + url
-    # Extract the filename from the URL
-    filename = url.split("/")[-1]
+    return hrefs  # Return the extracted download links
 
-    # Check if the file already exists in the directory
-    if os.path.exists(f"{midi_data_path}/{filename}"):
-        print(f"Skipping {filename} (already exists)")
-        return
-
-    async with session.get(url) as response:
-        # Save the MIDI file to the "data" folder
-        with open(f"{midi_data_path}/{filename}", "wb") as file:
-            # Iterate over the response content asynchronously
-            async for chunk in response.content.iter_any():
-                file.write(chunk)
-
-        print(f"Downloaded {filename}")
+async def save_links_to_pickle(download_links):
+    with open("pipeline/download_links.pkl", "wb") as file:
+        pickle.dump(download_links, file)
 
 async def main():
     # Fetch and extract hrefs asynchronously for pages 1 to 21
@@ -64,30 +49,19 @@ async def main():
         all_hrefs_per_page = await asyncio.gather(*tasks)
         all_hrefs = [href for hrefs in all_hrefs_per_page for href in hrefs]
 
-    # Create the "data" folder if it doesn't exist
-    if not os.path.exists(midi_data_path):
-        os.makedirs(midi_data_path)
-
     # Create a queue to store hrefs
     href_queue = asyncio.Queue()
 
     # Enqueue URLs directly into the href_queue
     tasks = [fetch_download_hrefs(url, href_queue) for url in all_hrefs]
-    await asyncio.gather(*tasks)
+    download_links_per_page = await asyncio.gather(*tasks)
+    download_links = [link for links in download_links_per_page for link in links]
 
-    # Create a list to store download tasks
-    download_tasks = []
+    # Save download links to a pickle file
+    await save_links_to_pickle(download_links)
 
-    # Download MIDI files from the URLs in href_queue
-    async with aiohttp.ClientSession() as session:
-        while not href_queue.empty():
-            href = await href_queue.get()
-            url = "https://www.midis101.com" + href
-            download_tasks.append(download_midi(url, session))
+    print("Download links extracted and saved to 'download_links.pkl' successfully.")
 
-    # Concurrently download MIDI files
-    await asyncio.gather(*download_tasks)
-
-    print("MIDI files downloaded successfully.")
-
-await main()
+if __name__ == "__main__":
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())
