@@ -131,6 +131,7 @@ dbt_airflow/
 artifacts/
 experiments/
 rough.ipynb
-/processed
 logs.txt
 pipeline/download_links.pkl
+experimenting_music21.ipynb
+processed/

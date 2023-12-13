@@ -1,4 +1,7 @@
 [core]
-    remote = myremote
+    remote = gdrive
+    autostage = true
 ['remote "myremote"']
     url = gs://jazz-dvc-bucket
+['remote "gdrive"']
+    url = gdrive://1Gbkt_-V9b8ZiMMvrkYAi1mYqa5u90nTh
