@@ -1,18 +1,23 @@
 import pickle
 import numpy
 from music21 import converter, instrument, note, chord
-from tf.keras.utils import to_categorical
+from tensorflow.keras.utils import to_categorical
 import os
 import sys
 from math import floor
+import hydra
+from omegaconf import DictConfig, OmegaConf
 
 
-def get_notes(midi_path,split_index_start,split_index_end):
+def get_notes(config):
+
     """ Get all the notes and chords from the midi files """
-    notes = []
 
-    for file in os.listdir(midi_path)[split_index_start:split_index_end]:
-        file = midi_path + "/" + file
+    notes = []
+    split_end = floor(len(os.listdir("midi_data"))*config.train.split_end)
+
+    for file in os.listdir(config.midi_path)[config.train.split_start:split_end]:
+        file = config.midi_path + "/" + file
         
         try:
             print("Parsing %s" % file)
@@ -41,11 +46,8 @@ def get_notes(midi_path,split_index_start,split_index_end):
 
     return notes
 
-
 def prepare_sequences(notes, n_vocab, sequence_length):
     """ Prepare the sequences used by the Neural Network """
-    sequence_length = sequence_length
-
     # get all pitch names
     pitchnames = sorted(set(item for item in notes))
 
@@ -88,34 +90,24 @@ def save_files(n_vocab, network_input, network_output):
     with open('processed/n_vocab', 'wb') as filepath:
         pickle.dump(n_vocab, filepath)
 
-if __name__ == '__main__':
-
-    sequence_length = int(sys.argv[1])
-    midi_data_path = sys.argv[2]
-    split_index_start = int(sys.argv[3])
-    split_index_end = floor(len(os.listdir("midi_data"))*float(sys.argv[4]))
+@hydra.main(config_path="../config.yaml")
+def main(config):
     
-    file = open("log", "w")
-    sys.stderr.write = file.write
-
-    print("file_name: ", sys.argv[0],
-    "\nsequence_length: ", sequence_length,
-    "\nmidi_data_path: ", midi_data_path,
-    "\nsplit_index_start: ", split_index_start,
-    "\nsplit_index_end: ", split_index_end)
-
-    # with open('config.yaml', 'r') as config_file:
-    #         config = yaml.safe_load(config_file)
-
-    # sequence_length = config['sequence_length']
-
-    notes = get_notes(midi_data_path,split_index_start,split_index_end)
+    sequence_length = config.sequence_length
+    notes = get_notes(config)
     # get amount of pitch names
     n_vocab = len(set(notes))
 
     network_input, network_output = prepare_sequences(notes, n_vocab,sequence_length)
 
     save_files(n_vocab, network_input, network_output) 
+
+if __name__ == '__main__':
+
+    main()
+
+    
+    
     
 
     

@@ -1,0 +1,14 @@
+universal:
+  sequence_length: 100
+train:
+  model_loss_function: categorical_crossentropy
+  model_optimizer: rmsprop
+  epochs: 200
+  batch_size: 128
+  split_start: 0
+  train_end: 0.8
+inference:
+  split_start: 0.8
+  split_end: 1
+  model_path: model.h5
+  n_notes: 250 # number of notes to generate
