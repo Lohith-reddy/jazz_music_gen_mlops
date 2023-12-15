@@ -1,14 +1,15 @@
 import asyncio
+import re
+
 from aiohttp import ClientSession
 from bs4 import BeautifulSoup
-import re
 
 
 async def download_midi(url, extracted_text):
     async with ClientSession() as session:
         async with session.get(url) as response:
             content = await response.read()
-            file_path = midi_data_path+"/" + extracted_text + ".mid"
+            file_path = midi_data_path + "/" + extracted_text + ".mid"
             with open(file_path, "wb") as file:
                 file.write(content)
                 print("Downloaded", file_path)
@@ -17,10 +18,10 @@ async def download_midi(url, extracted_text):
 async def main(url):  # Pass the url as an argument
     async with ClientSession() as session:
         response = await session.get(url)
-        soup = BeautifulSoup(await response.text(), 'html.parser')
+        soup = BeautifulSoup(await response.text(), "html.parser")
 
         collection_content = soup.find(class_="collection-content")
-        href_list = [a['href'] for a in collection_content.find_all('a')]
+        href_list = [a["href"] for a in collection_content.find_all("a")]
 
         tasks = []
         for url in href_list:
@@ -32,6 +33,7 @@ async def main(url):  # Pass the url as an argument
 
         downloaded_files = await asyncio.gather(*tasks)
 
+
 if __name__ == "__main__":
     midi_data_path = "midi_data"
     url = "https://www.partnersinrhyme.com/midi/Jazz/index.shtml"
@@ -39,5 +41,4 @@ if __name__ == "__main__":
 
     # Run the main function using the event loop
     loop.run_until_complete(main(url))
-    #await main(url)  # Pass the url as an argument
-
+    # await main(url)  # Pass the url as an argument

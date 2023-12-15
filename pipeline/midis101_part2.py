@@ -1,6 +1,8 @@
 import os
-import requests
 import pickle
+
+import requests
+
 
 def download_midi(url, session):
     url = "https://www.midis101.com" + url
@@ -19,10 +21,12 @@ def download_midi(url, session):
 
         print(f"Downloaded {filename}")
 
+
 def load_links_from_pickle():
     with open("pipeline/download_links.pkl", "rb") as file:
         download_links = pickle.load(file)
     return download_links
+
 
 def main():
     # Load download links from the pickle file
@@ -38,6 +42,7 @@ def main():
             download_midi(url, session)
 
     print("MIDI files downloaded successfully.")
+
 
 if __name__ == "__main__":
     main()

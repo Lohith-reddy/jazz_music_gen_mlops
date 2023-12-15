@@ -1,11 +1,14 @@
 import asyncio
 import pickle
-from bs4 import BeautifulSoup
+
 import aiohttp
+from bs4 import BeautifulSoup
+
 
 async def fetch_url(session, url):
     async with session.get(url) as response:
         return await response.text()
+
 
 async def extract_hrefs(session, page):
     base_url = "https://www.midis101.com/search/jazz"
@@ -18,9 +21,10 @@ async def extract_hrefs(session, page):
     soup = BeautifulSoup(html_content, "html.parser")
 
     td_elements = soup.find_all("td")
-    hrefs = [td.find("a")["href"] for td in td_elements if td.find("a") and td.find("a")["href"] != 'javascript:;']
+    hrefs = [td.find("a")["href"] for td in td_elements if td.find("a") and td.find("a")["href"] != "javascript:;"]
 
     return hrefs
+
 
 async def fetch_download_hrefs(url, queue):
     url = "https://www.midis101.com" + url
@@ -37,9 +41,11 @@ async def fetch_download_hrefs(url, queue):
 
     return hrefs  # Return the extracted download links
 
+
 async def save_links_to_pickle(download_links):
     with open("pipeline/download_links.pkl", "wb") as file:
         pickle.dump(download_links, file)
+
 
 async def main():
     # Fetch and extract hrefs asynchronously for pages 1 to 21
@@ -61,6 +67,7 @@ async def main():
     await save_links_to_pickle(download_links)
 
     print("Download links extracted and saved to 'download_links.pkl' successfully.")
+
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
